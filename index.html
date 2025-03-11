@@ -6,7 +6,7 @@
 -->
 <html>
 	<head>
-		<title>Emmy and Hunter</title>
+		<title>Emmery and Hunter</title>
 		<meta charset="utf-8" />
 		<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
 		<link rel="stylesheet" href="assets/css/main.css" />
@@ -45,30 +45,75 @@
 
 						<!-- Intro -->
 						<article id="intro">
-							<h2 class="major">Gallery</h2>
-							<div class="gallery">
-								<figure class="gallery-item">
-									<img src="images/IMG_0859.JPG" alt="Description 1" />
-									<figcaption>Most Iconic photo of us :P</figcaption>
-								</figure>
-								<figure class="gallery-item">
-									<img src="images/IMG_0863.JPG" alt="Description 2" />
-									<figcaption>Hunter always needing attention</figcaption>
-								</figure>
-								<figure class="gallery-item">
-									<img src="images/IMG_0907.jpg" alt="Description 3" />
-									<figcaption>Very cute photo before Xavier Wulf :)</figcaption>
-								</figure>
-								<figure class="gallery-item">
-									<img src="images/IMG_0953.JPG" alt="Description 3" />
-									<figcaption>During the Xavier Concert</figcaption>
-								</figure>
-								<figure class="gallery-item">
-									<img src="images/IMG_1166.JPG" alt="Description 3" />
-									<figcaption>Our first party together</figcaption>
-								</figure>
-							</div>
-						</article>
+								<h2 class="major">Gallery</h2>
+							
+								<!-- Upload Form -->
+								<form id="upload-form">
+									<input type="file" id="image-upload" accept="image/*" required />
+									<input type="text" id="caption-input" placeholder="Enter caption" required />
+									<button type="submit">Upload</button>
+								</form>
+							
+								<div class="gallery" id="gallery"></div>
+								<script> 
+									const serverUrl = "http://localhost:5000";
+
+// Function to fetch and display images
+async function fetchImages() {
+    const response = await fetch(`${serverUrl}/images`);
+    const images = await response.json();
+    const gallery = document.getElementById("gallery");
+    gallery.innerHTML = ""; // Clear existing gallery
+
+    images.forEach(({ imageUrl, caption }) => {
+        const figure = document.createElement("figure");
+        figure.classList.add("gallery-item");
+        figure.innerHTML = `
+            <img src="${serverUrl}${imageUrl}" alt="${caption}" />
+            <figcaption>${caption}</figcaption>
+        `;
+        gallery.appendChild(figure);
+    });
+}
+
+// Handle image upload
+document.getElementById("upload-form").addEventListener("submit", async function (event) {
+    event.preventDefault();
+
+    const fileInput = document.getElementById("image-upload");
+    const captionInput = document.getElementById("caption-input");
+    const file = fileInput.files[0];
+    const caption = captionInput.value;
+
+    if (!file || !caption) {
+        alert("Please select an image and enter a caption.");
+        return;
+    }
+
+    const formData = new FormData();
+    formData.append("image", file);
+    formData.append("caption", caption);
+
+    const response = await fetch(`${serverUrl}/upload`, {
+        method: "POST",
+        body: formData,
+    });
+
+    if (response.ok) {
+        fetchImages(); // Refresh gallery
+        fileInput.value = "";
+        captionInput.value = "";
+    } else {
+        alert("Error uploading image.");
+    }
+});
+
+// Load images on page load
+fetchImages();
+
+								</script>
+							</article>
+							
 						
 						<style>
       .gallery {
